@@ -59,7 +59,7 @@ The solution covers the entire data lifecycle — from **raw CSV ingestion** to 
 
 🧱 Layer Architecture
 
-**Layer	 -----  Purpose**
+**Layer**	 -----  **Purpose**
 Source	 -----  Raw Airbnb CSV files
 AWS S3	 -----  Stores source files in the cloud
 Staging	 -----  Initial ingestion into Snowflake
