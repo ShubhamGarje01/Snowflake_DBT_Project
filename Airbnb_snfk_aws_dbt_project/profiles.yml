@@ -3,11 +3,11 @@ Airbnb_snfk_aws_dbt_project:
     dev:
       account: JDWVPZT-UEC60817
       database: AIRBNB
-      password: Shubham@123321
+      password: Shubham@123123
       role: ACCOUNTADMIN
       schema: dbt_schema
       threads: 1
       type: snowflake
-      user: SHUBHJULY999
+      user: ShubhJuly999
       warehouse: COMPUTE_WH
   target: dev

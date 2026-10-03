@@ -1,0 +1,1 @@
+SELECT * FROM AIRBNB.STAGING.LISTINGS -- semicolan will get added automatically when we ran with dbt

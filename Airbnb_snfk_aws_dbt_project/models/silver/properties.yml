@@ -1,0 +1,5 @@
+models: 
+  - name: silver_bookings
+    config:
+      materialized: table
+  
