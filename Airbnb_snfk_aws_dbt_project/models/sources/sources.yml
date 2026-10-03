@@ -1,0 +1,11 @@
+# syntax has taken from google 
+
+sources:
+  - name: staging #(best practice put schema name)
+    database: AIRBNB
+    schema: staging
+    tables: 
+      
+      - name: listings
+      - name: bookings
+      - name: hosts 
