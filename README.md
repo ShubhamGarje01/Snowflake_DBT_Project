@@ -18,51 +18,60 @@ The solution covers the entire data lifecycle — from **raw CSV ingestion** to 
 ## 🏗️ Architecture
 
 ### 🔄 Data Flow
-Data Flow
+```markdown
+## Data Flow
+
+
 Source Data (CSV) → AWS S3 → Snowflake (Staging) → Bronze Layer → Silver Layer → Gold Layer
-                                                           ↓              ↓           ↓
-                                                      Raw Tables    Cleaned Data   Analytics
+                                                        ↓              ↓             ↓
+                                                    Raw Tables     Cleaned Data   Analytics
+```
+
+
+## 🧱 Layer Architecture
+
+- **Layer**	 -------  **Purpose**
+- Source	 -------  Raw Airbnb CSV files
+- AWS S3	 ------  Stores source files in the cloud
+- Staging	 -------  Initial ingestion into Snowflake
+- Bronze	 --------  Raw data with minimal transformation
+- Silver	 ---------  Cleaned, standardized, and transformed data
+- Gold	  ----------  Business-ready analytical datasets
 
 
 
-🧱 Layer Architecture
+## 📊 Data Model
 
-**Layer**	 -----  **Purpose**
-Source	 -----  Raw Airbnb CSV files
-AWS S3	 -----  Stores source files in the cloud
-Staging	 -----  Initial ingestion into Snowflake
-Bronze	 -----  Raw data with minimal transformation
-Silver	 -----  Cleaned, standardized, and transformed data
-Gold	  -----  Business-ready analytical datasets
+### Medallion Architecture
 
+#### 🥉 Bronze Layer (Raw Data)
+- Raw data ingested from staging with minimal transformations:
 
+  - bronze_bookings - Raw booking transactions
+  - bronze_hosts - Raw host information
+  - bronze_listings - Raw property listings
 
-📊 Data Model
-Medallion Architecture
-🥉 Bronze Layer (Raw Data)
-Raw data ingested from staging with minimal transformations:
+#### 🥈 Silver Layer (Cleaned Data)
+- Cleaned and standardized data:
 
-bronze_bookings - Raw booking transactions
-bronze_hosts - Raw host information
-bronze_listings - Raw property listings
-🥈 Silver Layer (Cleaned Data)
-Cleaned and standardized data:
+  - silver_bookings - Validated booking records
+  - silver_hosts - Enhanced host profiles with quality metrics
+  - silver_listings - Standardized listing information with price categorization
 
-silver_bookings - Validated booking records
-silver_hosts - Enhanced host profiles with quality metrics
-silver_listings - Standardized listing information with price categorization
-🥇 Gold Layer (Analytics-Ready)
-Business-ready datasets optimized for analytics:
+#### 🥇 Gold Layer (Analytics-Ready)
+- Business-ready datasets optimized for analytics:
 
-obt (One Big Table) - Denormalized fact table joining bookings, listings, and hosts
-fact - Fact table for dimensional modeling
-Ephemeral models for intermediate transformations
-Snapshots (SCD Type 2)
-Slowly Changing Dimensions to track historical changes:
+  - obt (One Big Table) - Denormalized fact table joining bookings, listings, and hosts
+  - fact - Fact table for dimensional modeling
+  - Ephemeral models for intermediate transformations
+  - Snapshots (SCD Type 2)
+  - **Slowly Changing Dimensions to track historical changes:**
+      - **dim_bookings** - Historical booking changes
+      - **dim_hosts** - Historical host profile changes
+      - **dim_listings** - Historical listing changes
 
-dim_bookings - Historical booking changes
-dim_hosts - Historical host profile changes
-dim_listings - Historical listing changes
+```markdown
+
 📁 Project Structure
 AWS_DBT_Snowflake/
 ├── README.md                           # This file
@@ -123,52 +132,67 @@ AWS_DBT_Snowflake/
     └── seeds/                          # Static reference data
 
 
+```
 
 
+## 🎯 Project Key Features
 
-🎯 Key Features
-1. Incremental Loading
+#### 1. Incremental Loading
 Bronze and silver models use incremental materialization to process only new/changed data:
 
+```markdown
 {{ config(materialized='incremental') }}
 {% if is_incremental() %}
     WHERE CREATED_AT > (SELECT COALESCE(MAX(CREATED_AT), '1900-01-01') FROM {{ this }})
 {% endif %}
-2. Custom Macros
+```
+
+#### 2. Custom Macros
 Reusable business logic:
 
+```markdown
 tag() macro: Categorizes prices into 'low', 'medium', 'high'
 {{ tag('CAST(PRICE_PER_NIGHT AS INT)') }} AS PRICE_PER_NIGHT_TAG
-3. Dynamic SQL Generation
+```
+
+#### 3. Dynamic SQL Generation
 The OBT (One Big Table) model uses Jinja loops for maintainable joins:
 
+```markdown
 {% set configs = [...] %}
 SELECT {% for config in configs %}...{% endfor %}
-4. Slowly Changing Dimensions
-Track historical changes with timestamp-based snapshots:
+```
 
-Valid from/to dates automatically maintained
-Historical data preserved for point-in-time analysis
-5. Schema Organization
+#### 4. Slowly Changing Dimensions
+Track historical changes with timestamp-based snapshots:
+  - Valid from/to dates automatically maintained
+  - Historical data preserved for point-in-time analysis
+
+
+#### 5. Schema Organization
+
 Automatic schema separation by layer:
 
-Bronze models → AIRBNB.BRONZE.*
-Silver models → AIRBNB.SILVER.*
-Gold models → AIRBNB.GOLD.*
-📈 Data Quality
-Testing Strategy
-Source data validation tests
-Unique key constraints
-Not null checks
-Referential integrity tests
-Custom business rule tests
-Data Lineage
+  - Bronze models → AIRBNB.BRONZE.*
+  - Silver models → AIRBNB.SILVER.*
+  - Gold models → AIRBNB.GOLD.*
+
+
+## 📈 Data Quality
+
+#### Testing Strategy
+- Source data validation tests
+- Unique key constraints
+- Not null checks
+- Referential integrity tests
+- Custom business rule tests
+
+#### Data Lineage
 dbt automatically tracks data lineage, showing:
-
-Upstream dependencies
-Downstream impacts
-Model relationships
-Source to consumption flow
-
+- Upstream dependencies
+- Downstream impacts
+- Model relationships
+- Source to consumption flow
 
 
+  ## the end ##
